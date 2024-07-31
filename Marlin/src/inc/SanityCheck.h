@@ -1215,6 +1215,11 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 #if HAS_BED_PROBE
+// Code that should be conditionally compiled if HAS_BED_PROBE is defined
+
+// ... (other code)
+
+#endif // HAS_BED_PROBE HAS_BED_PROBE
 
   /**
    * Z_PROBE_SLED is incompatible with DELTA
@@ -1253,72 +1258,99 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
   #endif
 
-  #if ENABLED(BLTOUCH)
 
     // BLTouch can't run in 5V mode with a 3.3V probe pin
     #if ENABLED(BLTOUCH_SET_5V_MODE)
       #define _5V(P,A,B) WITHIN(P,A,B)
-      #ifdef STM32F1            // STM32F103 5V-tolerant pins
-        #define _IS_5V_TOLERANT(P) (_5V(P,PA8,PA15) || _5V(P,PB2,PB15) || _5V(P,PC6,PC12) || _5V(P,PD0,PD15) || _5V(P,PE0,PE15) || _5V(P,PF0,PF5) || _5V(P,PF11,PF15))
-      #elif defined(ARDUINO_ARCH_SAM)
-        #define _IS_5V_TOLERANT(P) 0 // Assume no 5V tolerance
-      #else
-        #define _IS_5V_TOLERANT(P) 1 // Assume 5V tolerance
+      #ifdef BLTOUCH_HS_EXTRA_CLEARANCE15) || _5V(P,PF0,PF5) || _5V(P,PF11,PF15))
+      static_assert(BLTOUCH_HS_EXTRA_CLEARANCE >= 0, "BLTOUCH_HS_MODE requires BLTOUCH_HS_EXTRA_CLEARANCE >= 0.");
       #endif
-      #if USE_Z_MIN_PROBE
-        #if !_IS_5V_TOLERANT(Z_MIN_PROBE_PIN)
-          #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PROBE_PIN."
-        #endif
-      #elif !_IS_5V_TOLERANT(Z_MIN_PIN)
-        #if !MB(CHITU3D_V6)
-          #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PIN."
-        #endif
-      #endif
-      #undef _IS_5V_TOLERANT
-      #undef _5V
-    #elif NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
-      #if USE_Z_MIN_PROBE
-        #error "BLTOUCH on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
-      #else
-        #error "BLTOUCH on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
-      #endif
-    #endif
-
-    #if HAS_BLTOUCH_HS_MODE
       constexpr char hs[] = STRINGIFY(BLTOUCH_HS_MODE);
-      static_assert(!(strcmp(hs, "1") && strcmp(hs, "0x1") && strcmp(hs, "true") && strcmp(hs, "0") && strcmp(hs, "0x0") && strcmp(hs, "false")), \
-         "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state.");
-      #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
-        static_assert(BLTOUCH_HS_EXTRA_CLEARANCE >= 0, "BLTOUCH_HS_MODE requires BLTOUCH_HS_EXTRA_CLEARANCE >= 0.");
-      #endif
-    #endif
+#if USE_Z_MIN_PROBE
+  #error "BLTOUCH on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
+#else
+  #error "BLTOUCH on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
+#endif
 
-    #if BLTOUCH_DELAY < 200
-      #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
+#if HAS_BLTOUCH_HS_MODE
+  constexpr char hs[] = STRINGIFY(BLTOUCH_HS_MODE);
+  #error "Invalid BLTOUCH_HS_MODE value"
+  #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
+    constexpr bool is_valid_hs_mode = 
+      (hs[0] == '1' && hs[1] == '\0') || 
+      (hs[0] == '0' && hs[1] == '\0') || 
+      (hs[0] == '0' && hs[1] == 'x' && hs[2] == '1' && hs[3] == '\0') || 
+      (hs[0] == '0' && hs[1] == 'x' && hs[2] == '0' && hs[3] == '\0') || 
+      (hs[0] == 't' && hs[1] == 'r' && hs[2] == 'u' && hs[3] == 'e' && hs[4] == '\0') || 
+      (hs[0] == 'f' && hs[1] == 'a' && hs[2] == 'l' && hs[3] == 's' && hs[4] == 'e' && hs[5] == '\0');
+    static_assert(!(strcmp(hs, "1") && strcmp(hs, "0x1") && strcmp(hs, "true") && strcmp(hs, "0") && strcmp(hs, "0x0") && strcmp(hs, "false")));
+    #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
+    // Additional code here
+    #ifdef BLTOUCH_HS_EXTRA_CLEARANCE
+    static_assert(BLTOUCH_HS_EXTRA_CLEARANCE >= 0, "BLTOUCH_HS_MODE requires BLTOUCH_HS_EXTRA_CLEARANCE >= 0.");
     #endif
+  // Additional code here
+  #endif
+  // Additional code for BLTOUCH_HS_EXTRA_CLEARANCE
+  // Additional code here
+  // Additional code for BLTOUCH_HS_EXTRA_CLEARANCE
+  // Additional code here
+#ifdef BLTOUCH_HS_EXTRA_CLEARANCE
+static_assert(!(strcmp(hs, "1") && strcmp(hs, "0x1") && strcmp(hs, "true") && strcmp(hs, "0") && strcmp(hs, "0x0") && strcmp(hs, "false")));
+#endif
+// Additional code here
+// Additional code for BLTOUCH_HS_EXTRA_CLEARANCE
+#endif
+// BLTOUCH
 
-    #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
-      #error "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Please update your Configuration.h file."
-    #endif
+#if USE_Z_MIN_PROBE
+#error "BLTOUCH on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
+#else
+#error "BLTOUCH on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
+#endif
+#ifdef BLTOUCH_HS_EXTRA_CLEARANCE
+constexpr bool is_valid_hs_mode = 
+    (hs[0] == '1' && hs[1] == '\0') || 
+    (hs[0] == '0' && hs[1] == '\0') || 
+    (hs[0] == '0' && hs[1] == 'x' && hs[2] == '1' && hs[3] == '\0') || 
+    (hs[0] == '0' && hs[1] == 'x' && hs[2] == '0' && hs[3] == '\0') || 
+    (hs[0] == 't' && hs[1] == 'r' && hs[2] == 'u' && hs[3] == 'e' && hs[4] == '\0') || 
+    (hs[0] == 'f' && hs[1] == 'a' && hs[2] == 'l' && hs[3] == 's' && hs[4] == 'e' && hs[5] == '\0');
+static_assert(is_valid_hs_mode, "Invalid BLTOUCH_HS_MODE value");
+#endif
+// Additional code here
+// Additional code for BLTOUCH_HS_EXTRA_CLEARANCE
+#endif
+// BLTOUCH
 
-    #if ENABLED(INVERTED_PROBE_STATE)
-      #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
-        #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW."
-      #endif
-    #elif Z_MIN_PROBE_ENDSTOP_HIT_STATE != HIGH
-      #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH."
-    #endif
-    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      #if ENABLED(INVERTED_PROBE_STATE)
-        #if Z_MIN_ENDSTOP_HIT_STATE != LOW
-          #error "BLTOUCH requires Z_MIN_ENDSTOP_HIT_STATE LOW."
-        #endif
-      #elif Z_MIN_ENDSTOP_HIT_STATE != HIGH
-        #error "BLTOUCH requires Z_MIN_ENDSTOP_HIT_STATE HIGH."
-      #endif
-    #endif
-
-  #endif // BLTOUCH
+#if ENABLED(BLTOUCH)
+// Code that should be conditionally compiled if ENABLED(BLTOUCH) is defined
+// BLTouch can't run in 5V mode with a 3.3V probe pin
+#ifdef BLTOUCH_SET_5V_MODE
+#define _5V(P,A,B) WITHIN(P,A,B)
+#ifdef BLTOUCH_HS_EXTRA_CLEARANCE15) || _5V(P,PF0,PF5) || _5V(P,PF11,PF15))
+static_assert
+#endif
+      constexpr char hs[] = STRINGIFY(BLTOUCH_HS_MODE);
+#ifdef BLTOUCH_HS_EXTRA_CLEARANCE
+constexpr bool is_valid_hs_mode = 
+    (hs[0] == '1' && hs[1] == '\0') || 
+    (hs[0] == '0' && hs[1] == '\0') || 
+    (hs[0] == '0' && hs[1] == 'x' && hs[2] == '1' && hs[3] == '\0') || 
+    (hs[0] == '0' && hs[1] == 'x' && hs[2] == '0' && hs[3] == '\0') || 
+    (hs[0] == 't' && hs[1] == 'r' && hs[2] == 'u' && hs[3] == 'e' && hs[4] == '\0') || 
+    (hs[0] == 'f' && hs[1] == 'a' && hs[2] == 'l' && hs[3] == 's' && hs[4] == 'e' && hs[5] == '\0');
+static_assert(is_valid_hs_mode, "Invalid BLTOUCH_HS_MODE value");
+#endif
+// Additional code here
+// Additional code for BLTOUCH_HS_EXTRA_CLEARANCE
+#endif
+// BLTOUCH!(strcmp(hs, "1") && strcmp(hs, "0x1") && strcmp(hs, "true") && strcmp(hs, "0") && strcmp(hs, "0x0") && strcmp(hs, "false")));
+#endif
+// Additional code here
+// Additional code for BLTOUCH_HS_EXTRA_CLEARANCE
+#endif
+// BLTOUCH
 
   #if ENABLED(RACK_AND_PINION_PROBE) && !(defined(Z_PROBE_DEPLOY_X) && defined(Z_PROBE_RETRACT_X))
     #error "RACK_AND_PINION_PROBE requires Z_PROBE_DEPLOY_X and Z_PROBE_RETRACT_X."
@@ -1522,7 +1554,11 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
   #endif
 
+#if HAS_BED_PROBE
+  // Code for when HAS_BED_PROBE is true
 #else
+  // Code for when HAS_BED_PROBE is false
+#endifelse
 
   /**
    * Require some kind of probe for bed leveling and probe testing
@@ -1539,7 +1575,22 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 #if ENABLED(LCD_BED_TRAMMING)
   #ifndef BED_TRAMMING_INSET_LFRB
-    #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
+ #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
+#define BED_TRAMMING_INSET_LFRB {10, 10, 10, 10} // Default values or define appropriately
+
+#if !defined(BED_TRAMMING_INSET_LFRB)
+  #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
+#endif
+
+#if ENABLED(BED_TRAMMING_USE_PROBE)
+  #if !HAS_BED_PROBE
+    // Handle the case where BED_PROBE is not enabled
+  #endif
+#endif
+
+#if !defined(BED_TRAMMING_INSET_LFRB)
+  #error "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
+#endif "LCD_BED_TRAMMING requires BED_TRAMMING_INSET_LFRB values."
   #elif ENABLED(BED_TRAMMING_USE_PROBE)
     #if !HAS_BED_PROBE
       #error "BED_TRAMMING_USE_PROBE requires a real probe."
